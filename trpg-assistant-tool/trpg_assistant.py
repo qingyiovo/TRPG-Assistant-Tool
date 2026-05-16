@@ -29,10 +29,8 @@ def roll_dice():
         for i in range(dice_count):
             results.append(random.randint(1, dice_sides))
 
-        total = sum(results)
-
         print("Roll results:", results)
-        print("Total:", total)
+        print("Total:", sum(results))
 
     except:
         print("Invalid input. Please use format like 1d100, 2d6, 3d10.")
@@ -132,13 +130,67 @@ def view_npcs():
         print(f"Note: {info['note']}")
 
 
+def view_npc_detail():
+    npcs = load_npcs()
+
+    if not npcs:
+        print("\nNo NPC data found.")
+        return
+
+    view_npcs()
+
+    try:
+        choice = int(input("\nChoose NPC number to view detail: "))
+        npc = npcs[choice - 1]
+    except:
+        print("Invalid NPC number.")
+        return
+
+    print("\n===== NPC Detail =====")
+
+    print("\n--- Basic Info ---")
+    for key, value in npc["basic_info"].items():
+        print(f"{key}: {value}")
+
+    print("\n--- Attributes ---")
+    for key, value in npc["attributes"].items():
+        print(f"{key}: {value}")
+
+    print("\n--- Status ---")
+    for key, value in npc["status"].items():
+        print(f"{key}: {value}")
+
+    print("\n--- Skills ---")
+    if npc["skills"]:
+        for skill, value in npc["skills"].items():
+            print(f"{skill}: {value}")
+    else:
+        print("No skills added.")
+
+    print("\n--- Weapons ---")
+    if npc["weapons"]:
+        for weapon in npc["weapons"]:
+            print(f"Name: {weapon['name']}")
+            print(f"Damage: {weapon['damage']}")
+            print(f"Range: {weapon['range']}")
+            print(f"Attacks: {weapon['attacks']}")
+            print("---")
+    else:
+        print("No weapons added.")
+
+    print("\n--- Background ---")
+    for key, value in npc["background"].items():
+        print(f"{key}: {value}")
+
+
 def main():
     while True:
         print("\n===== TRPG Assistant Tool =====")
         print("1. Roll Dice")
         print("2. Add NPC")
         print("3. View NPC List")
-        print("4. Exit")
+        print("4. View NPC Detail")
+        print("5. Exit")
 
         choice = input("Choose an option: ")
 
@@ -149,10 +201,12 @@ def main():
         elif choice == "3":
             view_npcs()
         elif choice == "4":
+            view_npc_detail()
+        elif choice == "5":
             print("Goodbye!")
             break
         else:
-            print("Invalid choice. Please choose 1, 2, 3, or 4.")
+            print("Invalid choice. Please choose 1, 2, 3, 4, or 5.")
 
 
 main()
