@@ -182,7 +182,51 @@ def view_npc_detail():
     for key, value in npc["background"].items():
         print(f"{key}: {value}")
 
+def search_npc():
+    npcs = load_npcs()
 
+    if not npcs:
+        print("\nNo NPC data found.")
+        return
+
+    keyword = input("Enter NPC name or keyword: ").lower()
+    found = False
+
+    print("\n===== Search Results =====")
+
+    for index, npc in enumerate(npcs, start=1):
+        name = npc["basic_info"]["name"].lower()
+        role = npc["basic_info"]["role"].lower()
+        note = npc["basic_info"]["note"].lower()
+
+        if keyword in name or keyword in role or keyword in note:
+            print(f"\n[{index}] {npc['basic_info']['name']}")
+            print(f"Role: {npc['basic_info']['role']}")
+            print(f"Occupation: {npc['basic_info']['occupation']}")
+            print(f"Note: {npc['basic_info']['note']}")
+            found = True
+
+    if not found:
+        print("No matching NPC found.")
+
+
+def delete_npc():
+    npcs = load_npcs()
+
+    if not npcs:
+        print("\nNo NPC data found.")
+        return
+
+    view_npcs()
+
+    try:
+        choice = int(input("\nChoose NPC number to delete: "))
+        deleted_npc = npcs.pop(choice - 1)
+        save_npcs(npcs)
+        print(f"\nDeleted NPC: {deleted_npc['basic_info']['name']}")
+    except:
+        print("Invalid NPC number.")
+        
 def main():
     while True:
         print("\n===== TRPG Assistant Tool =====")
@@ -190,7 +234,9 @@ def main():
         print("2. Add NPC")
         print("3. View NPC List")
         print("4. View NPC Detail")
-        print("5. Exit")
+        print("5. Search NPC")
+        print("6. Delete NPC")
+        print("7. Exit")
 
         choice = input("Choose an option: ")
 
@@ -203,10 +249,14 @@ def main():
         elif choice == "4":
             view_npc_detail()
         elif choice == "5":
+            search_npc()
+        elif choice == "6":
+            delete_npc()
+        elif choice == "7":
             print("Goodbye!")
             break
         else:
-            print("Invalid choice. Please choose 1, 2, 3, 4, or 5.")
+            print("Invalid choice. Please choose 1-7.")
 
 
 main()
