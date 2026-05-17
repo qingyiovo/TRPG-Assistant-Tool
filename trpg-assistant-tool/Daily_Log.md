@@ -45,3 +45,23 @@ I also need more practice understanding how JSON stores data.
 ## Tomorrow's plan
 Tomorrow I will start Version 0.4.  
 I want to add two new features: searching NPCs and deleting NPCs.
+# Day 2 Log
+
+## What I did today
+Today I updated my TRPG Assistant Tool to Version 0.4.  
+I added two new features: searching NPCs and deleting NPCs.
+
+## Programming
+I practiced using functions, lists, dictionaries, JSON files, and menu options in Python.  
+I also learned how to test a program step by step.
+
+## GitHub
+I committed and pushed my new version to GitHub.
+
+## Problems
+I still need more practice with GitHub and code structure.  
+Sometimes I am not sure where to add new code.
+
+## Tomorrow's plan
+Tomorrow I will improve the project structure and README file.  
+I also want to make the NPC system safer and easier to use.
