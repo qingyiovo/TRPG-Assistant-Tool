@@ -65,3 +65,35 @@ Sometimes I am not sure where to add new code.
 ## Tomorrow's plan
 Tomorrow I will improve the project structure and README file.  
 I also want to make the NPC system safer and easier to use.
+# Day 3 Log
+
+## What I did today
+Today I updated my TRPG Assistant Tool to Version 0.5.  
+I added a new feature that allows users to edit NPC information.
+
+## Programming
+I learned more about CRUD systems:
+- Create
+- Read
+- Update
+- Delete
+
+I practiced modifying existing data in a JSON file and updating Python dictionaries.
+
+## Project
+I also improved the README file and made the project structure clearer.
+
+## English
+I continued watching CS50 and tried to understand more programming vocabulary in English.
+
+## Problems
+Sometimes I still feel confused about where functions should be placed in the code.  
+I also need more practice understanding how data flows through the program.
+
+## What I learned
+I learned that software engineering is not only about writing code.  
+Maintaining and improving a system step by step is also very important.
+
+## Tomorrow's plan
+Tomorrow I want to continue improving the NPC management system.  
+I also want to learn more about algorithms and Python structure.
