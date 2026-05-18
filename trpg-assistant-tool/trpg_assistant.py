@@ -226,7 +226,45 @@ def delete_npc():
         print(f"\nDeleted NPC: {deleted_npc['basic_info']['name']}")
     except:
         print("Invalid NPC number.")
-        
+
+def edit_npc():
+    npcs = load_npcs()
+
+    if not npcs:
+        print("\nNo NPC data found.")
+        return
+
+    view_npcs()
+
+    try:
+        choice = int(input("\nChoose NPC number to edit: "))
+        npc = npcs[choice - 1]
+    except:
+        print("Invalid NPC number.")
+        return
+
+    print("\n===== Edit NPC =====")
+
+    new_name = input(f"New Name ({npc['basic_info']['name']}): ")
+    new_occupation = input(f"New Occupation ({npc['basic_info']['occupation']}): ")
+    new_role = input(f"New Role ({npc['basic_info']['role']}): ")
+    new_note = input(f"New Note ({npc['basic_info']['note']}): ")
+
+    if new_name:
+        npc["basic_info"]["name"] = new_name
+
+    if new_occupation:
+        npc["basic_info"]["occupation"] = new_occupation
+
+    if new_role:
+        npc["basic_info"]["role"] = new_role
+
+    if new_note:
+        npc["basic_info"]["note"] = new_note
+
+    save_npcs(npcs)
+
+    print("\nNPC updated successfully!")
 def main():
     while True:
         print("\n===== TRPG Assistant Tool =====")
@@ -236,7 +274,8 @@ def main():
         print("4. View NPC Detail")
         print("5. Search NPC")
         print("6. Delete NPC")
-        print("7. Exit")
+        print("7. Edit NPC")
+        print("8. Exit")
 
         choice = input("Choose an option: ")
 
@@ -253,6 +292,8 @@ def main():
         elif choice == "6":
             delete_npc()
         elif choice == "7":
+            edit_npc()
+        elif choice =="8"
             print("Goodbye!")
             break
         else:
