@@ -4,7 +4,13 @@ import os
 
 NPC_FILE = "npc_data.json"
 
-
+def get_int_input(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            
 def load_npcs():
     if os.path.exists(NPC_FILE):
         with open(NPC_FILE, "r", encoding="utf-8") as file:
@@ -49,8 +55,8 @@ def add_npc():
             "note": input("KP备注 Note: ")
         },
         "attributes": {
-            "STR": int(input("力量 STR: ")),
-            "CON": int(input("体质 CON: ")),
+            "STR": get_int_input("力量 STR: "),
+            "CON": get_int_input("体质 CON: "),
             "SIZ": int(input("体型 SIZ: ")),
             "DEX": int(input("敏捷 DEX: ")),
             "APP": int(input("外貌 APP: ")),
@@ -59,7 +65,7 @@ def add_npc():
             "EDU": int(input("教育 EDU: "))
         },
         "status": {
-            "HP": int(input("HP: ")),
+            "HP": get_int_input("HP: "),
             "SAN": int(input("SAN: ")),
             "MP": int(input("MP: ")),
             "LUCK": int(input("幸运 LUCK: ")),
