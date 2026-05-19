@@ -97,3 +97,29 @@ Maintaining and improving a system step by step is also very important.
 ## Tomorrow's plan
 Tomorrow I want to continue improving the NPC management system.  
 I also want to learn more about algorithms and Python structure.
+# Day 4 Log
+
+## What I did today
+Today I improved the structure of my TRPG Assistant Tool project.
+I also started learning about input validation and safer programming.
+
+## Programming
+I practiced:
+- try / except
+- code readability
+- adding comments
+- improving program stability
+
+## English
+I continued watching CS50 and tried to understand debugging concepts in English.
+
+## Problems
+Sometimes I still forget where certain functions are located.
+I also need more practice handling invalid user input.
+
+## What I learned
+I learned that software engineering is not only about adding features.
+Making programs safer and easier to maintain is also important.
+
+## Tomorrow's plan
+Tomorrow I want to continue improving the user experience and project structure.
