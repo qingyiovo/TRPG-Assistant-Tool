@@ -123,3 +123,52 @@ Making programs safer and easier to maintain is also important.
 
 ## Tomorrow's plan
 Tomorrow I want to continue improving the user experience and project structure.
+# Day 3 Log
+
+## What I did today
+Today I started rebuilding my TRPG Assistant Tool into a GUI application.
+
+Instead of continuing with the command-line version, I reorganized the project into multiple Python files. This makes the project easier to maintain and closer to a real software engineering project.
+
+## Project Structure
+I created the following files:
+
+- main.py
+- gui.py
+- dice.py
+- npc.py
+- storage.py
+
+Each file now has its own responsibility instead of putting everything in one Python file.
+
+## Programming
+Today I learned about modular programming.
+
+I separated the project into different modules:
+- Dice rolling logic
+- NPC management
+- JSON storage
+- GUI interface
+
+I also started using Tkinter to build the graphical user interface.
+
+## English
+I continued learning computer science through English materials.
+Although I still need time to understand technical vocabulary, I can understand more than before.
+
+## GitHub
+I uploaded today's progress to GitHub.
+I also learned how to organize a project like a real software engineering repository.
+
+## Problems
+I found that GUI programming is very different from command-line programming.
+I still need more practice with Tkinter and project architecture.
+
+## Reflection
+Today I realized that software engineering is not only about writing code.
+A good project also needs a clear structure and good organization.
+Building the architecture first will make future development much easier.
+
+## Tomorrow's Plan
+Tomorrow I will continue developing the GUI version.
+My next goal is to add a complete NPC Manager interface with search and delete functions.
