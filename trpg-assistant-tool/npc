@@ -1,0 +1,17 @@
+from storage import load_npcs, save_npcs
+
+def add_npc(name, age, occupation, role, note):
+    npc = {
+        "name": name,
+        "age": age,
+        "occupation": occupation,
+        "role": role,
+        "note": note
+    }
+
+    npcs = load_npcs()
+    npcs.append(npc)
+    save_npcs(npcs)
+
+def get_all_npcs():
+    return load_npcs()
