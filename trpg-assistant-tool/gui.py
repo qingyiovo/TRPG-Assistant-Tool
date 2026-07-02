@@ -21,19 +21,23 @@ class TRPGApp:
         self.show_dice_page()
 
     def create_sidebar(self):
-        title = tk.Label(
-            self.sidebar,
-            text="TRPG Studio",
-            font=("Arial", 18, "bold"),
-            bg="#2b2b2b",
-            fg="white"
-        )
-        title.pack(pady=25)
+    title = tk.Label(
+        self.sidebar,
+        text="TRPG Studio",
+        font=("Arial", 18, "bold"),
+        bg="#2b2b2b",
+        fg="white"
+    )
+    title.pack(pady=25)
 
-        self.create_sidebar_button("🎲 Dice", self.show_dice_page)
-        self.create_sidebar_button("👤 NPC Manager", self.show_npc_page)
-        self.create_sidebar_button("📖 Character Card", self.show_placeholder_page)
-        self.create_sidebar_button("⚙ Settings", self.show_placeholder_page)
+    self.create_sidebar_button("🎲 CoC Dice", self.show_dice_page)
+    self.create_sidebar_button("👤 NPC Manager", self.show_npc_page)
+    self.create_sidebar_button("📖 Clues", self.show_clues_page)
+    self.create_sidebar_button("🗺 Maps", self.show_maps_page)
+    self.create_sidebar_button("📅 Timeline", self.show_timeline_page)
+    self.create_sidebar_button("🎵 Music", self.show_music_page)
+    self.create_sidebar_button("📁 Campaign Manager", self.show_campaign_page)
+    self.create_sidebar_button("⚙ Settings", self.show_settings_page)
 
     def create_sidebar_button(self, text, command):
         button = tk.Button(
@@ -254,6 +258,75 @@ class TRPGApp:
             bg="#f5f5f5"
         )
         label.pack(pady=20)
+def show_clues_page(self):
+    self.clear_content()
+    self.create_page_title("Clues")
+    label = tk.Label(
+        self.content,
+        text="Clue management will be added here.\n\nFuture features:\n- Add clue\n- View clues\n- Link clues to NPCs\n- Mark clue as discovered",
+        font=("Arial", 14),
+        bg="#f5f5f5"
+    )
+    label.pack(pady=20)
 
+
+def show_maps_page(self):
+    self.clear_content()
+    self.create_page_title("Maps")
+    label = tk.Label(
+        self.content,
+        text="Map tools will be added here.\n\nFuture features:\n- Add map image\n- View maps\n- Add location notes",
+        font=("Arial", 14),
+        bg="#f5f5f5"
+    )
+    label.pack(pady=20)
+
+
+def show_timeline_page(self):
+    self.clear_content()
+    self.create_page_title("Timeline")
+    label = tk.Label(
+        self.content,
+        text="Timeline system will be added here.\n\nFuture features:\n- Add event\n- View story timeline\n- Sort events by time",
+        font=("Arial", 14),
+        bg="#f5f5f5"
+    )
+    label.pack(pady=20)
+
+
+def show_music_page(self):
+    self.clear_content()
+    self.create_page_title("Music")
+    label = tk.Label(
+        self.content,
+        text="Music control will be added here.\n\nFuture features:\n- Add music file\n- Play background music\n- Stop music",
+        font=("Arial", 14),
+        bg="#f5f5f5"
+    )
+    label.pack(pady=20)
+
+
+def show_campaign_page(self):
+    self.clear_content()
+    self.create_page_title("Campaign Manager")
+    label = tk.Label(
+        self.content,
+        text="Campaign management will be added here.\n\nFuture features:\n- Create campaign\n- Save campaign notes\n- Manage NPCs, clues, maps and timeline by campaign",
+        font=("Arial", 14),
+        bg="#f5f5f5"
+    )
+    label.pack(pady=20)
+
+
+def show_settings_page(self):
+    self.clear_content()
+    self.create_page_title("Settings")
+    label = tk.Label(
+        self.content,
+        text="Settings will be added here.\n\nFuture features:\n- Theme settings\n- Data path settings\n- Export and import options",
+        font=("Arial", 14),
+        bg="#f5f5f5"
+    )
+    label.pack(pady=20)
     def run(self):
         self.root.mainloop()
