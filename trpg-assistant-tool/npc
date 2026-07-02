@@ -15,3 +15,25 @@ def add_npc(name, age, occupation, role, note):
 
 def get_all_npcs():
     return load_npcs()
+
+def search_npcs(keyword):
+    npcs = load_npcs()
+    keyword = keyword.lower()
+
+    results = []
+
+    for npc in npcs:
+        if keyword in npc["name"].lower():
+            results.append(npc)
+
+    return results
+
+def delete_npc(index):
+    npcs = load_npcs()
+
+    if index < 0 or index >= len(npcs):
+        return False
+
+    npcs.pop(index)
+    save_npcs(npcs)
+    return True
