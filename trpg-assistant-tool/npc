@@ -1,18 +1,9 @@
 from storage import load_npcs, save_npcs
 
 
-def add_npc(name, age, occupation, role, note, portrait=""):
-    npc = {
-        "name": name,
-        "age": age,
-        "occupation": occupation,
-        "role": role,
-        "note": note,
-        "portrait": portrait
-    }
-
+def create_npc(data):
     npcs = load_npcs()
-    npcs.append(npc)
+    npcs.append(data)
     save_npcs(npcs)
 
 
@@ -20,21 +11,13 @@ def get_all_npcs():
     return load_npcs()
 
 
-def update_npc(index, name, age, occupation, role, note, portrait=""):
+def update_npc(index, data):
     npcs = load_npcs()
 
     if index < 0 or index >= len(npcs):
         return False
 
-    npcs[index] = {
-        "name": name,
-        "age": age,
-        "occupation": occupation,
-        "role": role,
-        "note": note,
-        "portrait": portrait
-    }
-
+    npcs[index] = data
     save_npcs(npcs)
     return True
 
