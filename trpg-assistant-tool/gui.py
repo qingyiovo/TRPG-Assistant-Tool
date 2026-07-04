@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import messagebox, Toplevel
 
 from dice import roll_dice
-from npc import add_npc, get_all_npcs, update_npc, delete_npc
+from npc import create_npc, get_all_npcs, update_npc, delete_npc
 
 
 class TRPGApp:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("TRPG Keeper Studio")
-        self.root.geometry("950x620")
+        self.root.geometry("1000x700")
 
         self.selected_npc_index = None
 
@@ -65,28 +65,24 @@ class TRPGApp:
             font=("Arial", 22, "bold"),
             bg="#f5f5f5"
         )
-        title.pack(pady=20)
+        title.pack(pady=15)
 
     def show_dice_page(self):
         self.clear_content()
         self.create_page_title("CoC Dice Roller")
 
-        form_frame = tk.Frame(self.content, bg="#f5f5f5")
-        form_frame.pack(pady=20)
+        frame = tk.Frame(self.content, bg="#f5f5f5")
+        frame.pack(pady=20)
 
-        tk.Label(form_frame, text="Dice Format:", bg="#f5f5f5").grid(
-            row=0, column=0, padx=10, pady=10
-        )
+        tk.Label(frame, text="Dice Format:", bg="#f5f5f5").grid(row=0, column=0, padx=10)
 
-        self.dice_entry = tk.Entry(form_frame, width=30)
-        self.dice_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.dice_entry = tk.Entry(frame, width=30)
+        self.dice_entry.grid(row=0, column=1, padx=10)
         self.dice_entry.insert(0, "1d100")
 
-        tk.Button(
-            form_frame,
-            text="Roll Dice",
-            command=self.handle_roll_dice
-        ).grid(row=1, column=0, columnspan=2, pady=10)
+        tk.Button(frame, text="Roll Dice", command=self.handle_roll_dice).grid(
+            row=1, column=0, columnspan=2, pady=15
+        )
 
         self.dice_result = tk.Label(
             self.content,
@@ -106,35 +102,55 @@ class TRPGApp:
     def show_npc_page(self):
         self.clear_content()
         self.selected_npc_index = None
-        self.create_page_title("NPC Manager")
+        self.create_page_title("COC7 NPC Manager")
 
         main_frame = tk.Frame(self.content, bg="#f5f5f5")
-        main_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        main_frame.pack(fill="both", expand=True, padx=15, pady=5)
 
         form_frame = tk.Frame(main_frame, bg="#f5f5f5")
-        form_frame.pack(side="left", fill="y", padx=20)
-
-        self.name_entry = self.create_form_input(form_frame, "Name", 0)
-        self.age_entry = self.create_form_input(form_frame, "Age", 1)
-        self.occupation_entry = self.create_form_input(form_frame, "Occupation", 2)
-        self.role_entry = self.create_form_input(form_frame, "Role", 3)
-        self.note_entry = self.create_form_input(form_frame, "Note", 4)
-        self.portrait_entry = self.create_form_input(form_frame, "Portrait Path", 5)
-
-        tk.Button(
-            form_frame,
-            text="Save New NPC",
-            command=self.handle_save_npc
-        ).grid(row=6, column=0, columnspan=2, pady=8)
-
-        tk.Button(
-            form_frame,
-            text="Update Selected NPC",
-            command=self.handle_update_npc
-        ).grid(row=7, column=0, columnspan=2, pady=8)
+        form_frame.pack(side="left", fill="y", padx=10)
 
         list_frame = tk.Frame(main_frame, bg="#f5f5f5")
-        list_frame.pack(side="right", fill="both", expand=True, padx=20)
+        list_frame.pack(side="right", fill="both", expand=True, padx=10)
+
+        self.entries = {}
+
+        self.create_section_title(form_frame, "Basic Info", 0)
+        self.create_input(form_frame, "Name", 1)
+        self.create_input(form_frame, "Age", 2)
+        self.create_input(form_frame, "Gender", 3)
+        self.create_input(form_frame, "Occupation", 4)
+        self.create_input(form_frame, "Role", 5)
+        self.create_input(form_frame, "Portrait", 6)
+
+        self.create_section_title(form_frame, "Attributes", 7)
+        attributes = ["STR", "CON", "SIZ", "DEX", "APP", "INT", "POW", "EDU"]
+        row = 8
+        for attr in attributes:
+            self.create_input(form_frame, attr, row, default="50")
+            row += 1
+
+        self.create_section_title(form_frame, "Status", row)
+        row += 1
+        for status in ["HP", "MP", "SAN", "Luck"]:
+            self.create_input(form_frame, status, row, default="50")
+            row += 1
+
+        self.create_section_title(form_frame, "Notes", row)
+        row += 1
+        self.create_input(form_frame, "Skills", row)
+        row += 1
+        self.create_input(form_frame, "Weapons", row)
+        row += 1
+        self.create_input(form_frame, "Background", row)
+        row += 1
+        self.create_input(form_frame, "Note", row)
+
+        button_frame = tk.Frame(form_frame, bg="#f5f5f5")
+        button_frame.grid(row=row + 1, column=0, columnspan=2, pady=10)
+
+        tk.Button(button_frame, text="Save New NPC", command=self.handle_save_npc).grid(row=0, column=0, padx=5)
+        tk.Button(button_frame, text="Update Selected", command=self.handle_update_npc).grid(row=0, column=1, padx=5)
 
         tk.Label(
             list_frame,
@@ -143,7 +159,7 @@ class TRPGApp:
             bg="#f5f5f5"
         ).pack(pady=5)
 
-        self.npc_listbox = tk.Listbox(list_frame, height=18)
+        self.npc_listbox = tk.Listbox(list_frame, height=24)
         self.npc_listbox.pack(side="left", fill="both", expand=True)
 
         scrollbar = tk.Scrollbar(list_frame)
@@ -155,69 +171,125 @@ class TRPGApp:
         self.npc_listbox.bind("<<ListboxSelect>>", self.handle_select_npc)
         self.npc_listbox.bind("<Double-Button-1>", self.open_npc_detail_window)
 
-        button_frame = tk.Frame(self.content, bg="#f5f5f5")
-        button_frame.pack(pady=10)
+        action_frame = tk.Frame(self.content, bg="#f5f5f5")
+        action_frame.pack(pady=10)
 
-        tk.Button(
-            button_frame,
-            text="View Detail",
-            command=self.open_npc_detail_window
-        ).grid(row=0, column=0, padx=10)
-
-        tk.Button(
-            button_frame,
-            text="Delete Selected NPC",
-            command=self.handle_delete_npc
-        ).grid(row=0, column=1, padx=10)
+        tk.Button(action_frame, text="View Detail", command=self.open_npc_detail_window).grid(row=0, column=0, padx=10)
+        tk.Button(action_frame, text="Delete Selected NPC", command=self.handle_delete_npc).grid(row=0, column=1, padx=10)
 
         self.refresh_npc_list()
 
-    def create_form_input(self, parent, label_text, row):
+    def create_section_title(self, parent, text, row):
+        label = tk.Label(
+            parent,
+            text=text,
+            font=("Arial", 12, "bold"),
+            bg="#f5f5f5"
+        )
+        label.grid(row=row, column=0, columnspan=2, pady=(10, 3), sticky="w")
+
+    def create_input(self, parent, label_text, row, default=""):
         tk.Label(parent, text=label_text, bg="#f5f5f5").grid(
-            row=row, column=0, padx=10, pady=5, sticky="e"
+            row=row, column=0, padx=5, pady=2, sticky="e"
         )
 
-        entry = tk.Entry(parent, width=35)
-        entry.grid(row=row, column=1, padx=10, pady=5)
+        entry = tk.Entry(parent, width=32)
+        entry.grid(row=row, column=1, padx=5, pady=2)
 
-        return entry
+        if default:
+            entry.insert(0, default)
+
+        self.entries[label_text] = entry
+
+    def get_form_data(self):
+        return {
+            "basic_info": {
+                "name": self.entries["Name"].get(),
+                "age": self.entries["Age"].get(),
+                "gender": self.entries["Gender"].get(),
+                "occupation": self.entries["Occupation"].get(),
+                "role": self.entries["Role"].get(),
+                "portrait": self.entries["Portrait"].get()
+            },
+            "attributes": {
+                "STR": self.entries["STR"].get(),
+                "CON": self.entries["CON"].get(),
+                "SIZ": self.entries["SIZ"].get(),
+                "DEX": self.entries["DEX"].get(),
+                "APP": self.entries["APP"].get(),
+                "INT": self.entries["INT"].get(),
+                "POW": self.entries["POW"].get(),
+                "EDU": self.entries["EDU"].get()
+            },
+            "status": {
+                "HP": self.entries["HP"].get(),
+                "MP": self.entries["MP"].get(),
+                "SAN": self.entries["SAN"].get(),
+                "Luck": self.entries["Luck"].get()
+            },
+            "details": {
+                "skills": self.entries["Skills"].get(),
+                "weapons": self.entries["Weapons"].get(),
+                "background": self.entries["Background"].get(),
+                "note": self.entries["Note"].get()
+            }
+        }
 
     def clear_form(self):
-        for entry in [
-            self.name_entry,
-            self.age_entry,
-            self.occupation_entry,
-            self.role_entry,
-            self.note_entry,
-            self.portrait_entry
-        ]:
+        for entry in self.entries.values():
             entry.delete(0, tk.END)
+
+        for key in ["STR", "CON", "SIZ", "DEX", "APP", "INT", "POW", "EDU", "HP", "MP", "SAN", "Luck"]:
+            self.entries[key].insert(0, "50")
 
     def fill_form(self, npc):
         self.clear_form()
-        self.name_entry.insert(0, npc.get("name", ""))
-        self.age_entry.insert(0, npc.get("age", ""))
-        self.occupation_entry.insert(0, npc.get("occupation", ""))
-        self.role_entry.insert(0, npc.get("role", ""))
-        self.note_entry.insert(0, npc.get("note", ""))
-        self.portrait_entry.insert(0, npc.get("portrait", ""))
+
+        basic = npc.get("basic_info", {})
+        attributes = npc.get("attributes", {})
+        status = npc.get("status", {})
+        details = npc.get("details", {})
+
+        values = {
+            "Name": basic.get("name", ""),
+            "Age": basic.get("age", ""),
+            "Gender": basic.get("gender", ""),
+            "Occupation": basic.get("occupation", ""),
+            "Role": basic.get("role", ""),
+            "Portrait": basic.get("portrait", ""),
+
+            "STR": attributes.get("STR", "50"),
+            "CON": attributes.get("CON", "50"),
+            "SIZ": attributes.get("SIZ", "50"),
+            "DEX": attributes.get("DEX", "50"),
+            "APP": attributes.get("APP", "50"),
+            "INT": attributes.get("INT", "50"),
+            "POW": attributes.get("POW", "50"),
+            "EDU": attributes.get("EDU", "50"),
+
+            "HP": status.get("HP", "50"),
+            "MP": status.get("MP", "50"),
+            "SAN": status.get("SAN", "50"),
+            "Luck": status.get("Luck", "50"),
+
+            "Skills": details.get("skills", ""),
+            "Weapons": details.get("weapons", ""),
+            "Background": details.get("background", ""),
+            "Note": details.get("note", "")
+        }
+
+        for key, value in values.items():
+            self.entries[key].delete(0, tk.END)
+            self.entries[key].insert(0, value)
 
     def handle_save_npc(self):
-        name = self.name_entry.get()
+        data = self.get_form_data()
 
-        if not name:
+        if not data["basic_info"]["name"]:
             messagebox.showerror("Error", "NPC name cannot be empty.")
             return
 
-        add_npc(
-            self.name_entry.get(),
-            self.age_entry.get(),
-            self.occupation_entry.get(),
-            self.role_entry.get(),
-            self.note_entry.get(),
-            self.portrait_entry.get()
-        )
-
+        create_npc(data)
         messagebox.showinfo("Success", "NPC saved successfully.")
         self.clear_form()
         self.refresh_npc_list()
@@ -227,15 +299,8 @@ class TRPGApp:
             messagebox.showerror("Error", "Please select an NPC first.")
             return
 
-        success = update_npc(
-            self.selected_npc_index,
-            self.name_entry.get(),
-            self.age_entry.get(),
-            self.occupation_entry.get(),
-            self.role_entry.get(),
-            self.note_entry.get(),
-            self.portrait_entry.get()
-        )
+        data = self.get_form_data()
+        success = update_npc(self.selected_npc_index, data)
 
         if success:
             messagebox.showinfo("Success", "NPC updated successfully.")
@@ -253,8 +318,11 @@ class TRPGApp:
             return
 
         for index, npc in enumerate(npcs, start=1):
-            text = f"{index}. {npc.get('name', '')} | {npc.get('occupation', '')} | {npc.get('role', '')}"
-            self.npc_listbox.insert(tk.END, text)
+            basic = npc.get("basic_info", {})
+            name = basic.get("name", "")
+            occupation = basic.get("occupation", "")
+            role = basic.get("role", "")
+            self.npc_listbox.insert(tk.END, f"{index}. {name} | {occupation} | {role}")
 
     def handle_select_npc(self, event=None):
         selected = self.npc_listbox.curselection()
@@ -276,10 +344,7 @@ class TRPGApp:
             messagebox.showerror("Error", "Please select an NPC first.")
             return
 
-        confirm = messagebox.askyesno(
-            "Confirm Delete",
-            "Are you sure you want to delete this NPC?"
-        )
+        confirm = messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this NPC?")
 
         if confirm:
             success = delete_npc(self.selected_npc_index)
@@ -304,24 +369,57 @@ class TRPGApp:
 
         npc = npcs[self.selected_npc_index]
 
-        window = Toplevel(self.root)
-        window.title(f"NPC Detail - {npc.get('name', '')}")
-        window.geometry("400x420")
+        basic = npc.get("basic_info", {})
+        attributes = npc.get("attributes", {})
+        status = npc.get("status", {})
+        details = npc.get("details", {})
 
-        detail_text = (
-            f"Name: {npc.get('name', '')}\n"
-            f"Age: {npc.get('age', '')}\n"
-            f"Occupation: {npc.get('occupation', '')}\n"
-            f"Role: {npc.get('role', '')}\n"
-            f"Portrait: {npc.get('portrait', '')}\n\n"
-            f"Note:\n{npc.get('note', '')}"
-        )
+        window = Toplevel(self.root)
+        window.title(f"NPC Detail - {basic.get('name', '')}")
+        window.geometry("500x600")
+
+        detail_text = f"""
+Name: {basic.get('name', '')}
+Age: {basic.get('age', '')}
+Gender: {basic.get('gender', '')}
+Occupation: {basic.get('occupation', '')}
+Role: {basic.get('role', '')}
+Portrait: {basic.get('portrait', '')}
+
+Attributes
+STR: {attributes.get('STR', '')}
+CON: {attributes.get('CON', '')}
+SIZ: {attributes.get('SIZ', '')}
+DEX: {attributes.get('DEX', '')}
+APP: {attributes.get('APP', '')}
+INT: {attributes.get('INT', '')}
+POW: {attributes.get('POW', '')}
+EDU: {attributes.get('EDU', '')}
+
+Status
+HP: {status.get('HP', '')}
+MP: {status.get('MP', '')}
+SAN: {status.get('SAN', '')}
+Luck: {status.get('Luck', '')}
+
+Skills:
+{details.get('skills', '')}
+
+Weapons:
+{details.get('weapons', '')}
+
+Background:
+{details.get('background', '')}
+
+Note:
+{details.get('note', '')}
+"""
 
         tk.Label(
             window,
             text=detail_text,
             justify="left",
-            font=("Arial", 12),
+            font=("Arial", 11),
             padx=20,
             pady=20
         ).pack(anchor="w")
