@@ -1,32 +1,43 @@
 from storage import load_npcs, save_npcs
 
-def add_npc(name, age, occupation, role, note):
+
+def add_npc(name, age, occupation, role, note, portrait=""):
     npc = {
         "name": name,
         "age": age,
         "occupation": occupation,
         "role": role,
-        "note": note
+        "note": note,
+        "portrait": portrait
     }
 
     npcs = load_npcs()
     npcs.append(npc)
     save_npcs(npcs)
 
+
 def get_all_npcs():
     return load_npcs()
 
-def search_npcs(keyword):
+
+def update_npc(index, name, age, occupation, role, note, portrait=""):
     npcs = load_npcs()
-    keyword = keyword.lower()
 
-    results = []
+    if index < 0 or index >= len(npcs):
+        return False
 
-    for npc in npcs:
-        if keyword in npc["name"].lower():
-            results.append(npc)
+    npcs[index] = {
+        "name": name,
+        "age": age,
+        "occupation": occupation,
+        "role": role,
+        "note": note,
+        "portrait": portrait
+    }
 
-    return results
+    save_npcs(npcs)
+    return True
+
 
 def delete_npc(index):
     npcs = load_npcs()
