@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, Toplevel
+from tkinter import messagebox, Toplevel, ttk, filedialog
 
 from dice import roll_dice
 from npc import create_npc, get_all_npcs, update_npc, delete_npc
@@ -9,9 +9,10 @@ class TRPGApp:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("TRPG Keeper Studio")
-        self.root.geometry("1000x700")
+        self.root.geometry("1100x750")
 
         self.selected_npc_index = None
+        self.entries = {}
 
         self.sidebar = tk.Frame(self.root, width=200, bg="#2b2b2b")
         self.sidebar.pack(side="left", fill="y")
@@ -102,67 +103,105 @@ class TRPGApp:
     def show_npc_page(self):
         self.clear_content()
         self.selected_npc_index = None
+        self.entries = {}
+
         self.create_page_title("COC7 NPC Manager")
 
         main_frame = tk.Frame(self.content, bg="#f5f5f5")
         main_frame.pack(fill="both", expand=True, padx=15, pady=5)
 
-        form_frame = tk.Frame(main_frame, bg="#f5f5f5")
-        form_frame.pack(side="left", fill="y", padx=10)
+        left_frame = tk.Frame(main_frame, bg="#f5f5f5")
+        left_frame.pack(side="left", fill="both", expand=True, padx=10)
 
-        list_frame = tk.Frame(main_frame, bg="#f5f5f5")
-        list_frame.pack(side="right", fill="both", expand=True, padx=10)
+        right_frame = tk.Frame(main_frame, bg="#f5f5f5")
+        right_frame.pack(side="right", fill="both", expand=True, padx=10)
 
-        self.entries = {}
+        notebook = ttk.Notebook(left_frame)
+        notebook.pack(fill="both", expand=True)
 
-        self.create_section_title(form_frame, "Basic Info", 0)
-        self.create_input(form_frame, "Name", 1)
-        self.create_input(form_frame, "Age", 2)
-        self.create_input(form_frame, "Gender", 3)
-        self.create_input(form_frame, "Occupation", 4)
-        self.create_input(form_frame, "Role", 5)
-        self.create_input(form_frame, "Portrait", 6)
+        basic_tab = tk.Frame(notebook, bg="#f5f5f5")
+        attr_tab = tk.Frame(notebook, bg="#f5f5f5")
+        combat_tab = tk.Frame(notebook, bg="#f5f5f5")
+        skills_tab = tk.Frame(notebook, bg="#f5f5f5")
+        notes_tab = tk.Frame(notebook, bg="#f5f5f5")
 
-        self.create_section_title(form_frame, "Attributes", 7)
+        notebook.add(basic_tab, text="Basic")
+        notebook.add(attr_tab, text="Attributes")
+        notebook.add(combat_tab, text="Combat")
+        notebook.add(skills_tab, text="Skills")
+        notebook.add(notes_tab, text="Notes")
+
+        self.create_input(basic_tab, "Name", 0)
+        self.create_input(basic_tab, "Age", 1)
+        self.create_input(basic_tab, "Gender", 2)
+        self.create_input(basic_tab, "Occupation", 3)
+        self.create_input(basic_tab, "Role", 4)
+        self.create_input(basic_tab, "Portrait", 5)
+
+        tk.Button(
+            basic_tab,
+            text="Select Image",
+            command=self.select_portrait
+        ).grid(row=6, column=1, pady=10, sticky="w")
+
         attributes = ["STR", "CON", "SIZ", "DEX", "APP", "INT", "POW", "EDU"]
-        row = 8
-        for attr in attributes:
-            self.create_input(form_frame, attr, row, default="50")
-            row += 1
+        for i, attr in enumerate(attributes):
+            self.create_input(attr_tab, attr, i, default="50")
 
-        self.create_section_title(form_frame, "Status", row)
-        row += 1
-        for status in ["HP", "MP", "SAN", "Luck"]:
-            self.create_input(form_frame, status, row, default="50")
-            row += 1
+        status_fields = ["HP", "MP", "SAN", "Luck", "Move", "Build", "Damage Bonus"]
+        for i, field in enumerate(status_fields):
+            self.create_input(combat_tab, field, i, default="")
 
-        self.create_section_title(form_frame, "Notes", row)
-        row += 1
-        self.create_input(form_frame, "Skills", row)
-        row += 1
-        self.create_input(form_frame, "Weapons", row)
-        row += 1
-        self.create_input(form_frame, "Background", row)
-        row += 1
-        self.create_input(form_frame, "Note", row)
+        combat_fields = ["Weapons", "Dodge", "Fighting"]
+        for i, field in enumerate(combat_fields, start=len(status_fields)):
+            self.create_input(combat_tab, field, i)
 
-        button_frame = tk.Frame(form_frame, bg="#f5f5f5")
-        button_frame.grid(row=row + 1, column=0, columnspan=2, pady=10)
+        skills = [
+            "Spot Hidden",
+            "Listen",
+            "Psychology",
+            "Library Use",
+            "Stealth",
+            "Persuade",
+            "Fast Talk",
+            "Intimidate",
+            "Medicine",
+            "Occult"
+        ]
+
+        for i, skill in enumerate(skills):
+            self.create_input(skills_tab, skill, i, default="")
+
+        note_fields = [
+            "Backstory",
+            "Ideology",
+            "Significant Person",
+            "Treasured Possession",
+            "Trait",
+            "Note"
+        ]
+
+        for i, field in enumerate(note_fields):
+            self.create_input(notes_tab, field, i)
+
+        button_frame = tk.Frame(left_frame, bg="#f5f5f5")
+        button_frame.pack(pady=10)
 
         tk.Button(button_frame, text="Save New NPC", command=self.handle_save_npc).grid(row=0, column=0, padx=5)
         tk.Button(button_frame, text="Update Selected", command=self.handle_update_npc).grid(row=0, column=1, padx=5)
+        tk.Button(button_frame, text="Clear Form", command=self.clear_form).grid(row=0, column=2, padx=5)
 
         tk.Label(
-            list_frame,
+            right_frame,
             text="NPC List",
             font=("Arial", 14, "bold"),
             bg="#f5f5f5"
         ).pack(pady=5)
 
-        self.npc_listbox = tk.Listbox(list_frame, height=24)
+        self.npc_listbox = tk.Listbox(right_frame, height=25)
         self.npc_listbox.pack(side="left", fill="both", expand=True)
 
-        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar = tk.Scrollbar(right_frame)
         scrollbar.pack(side="right", fill="y")
 
         self.npc_listbox.config(yscrollcommand=scrollbar.set)
@@ -179,27 +218,31 @@ class TRPGApp:
 
         self.refresh_npc_list()
 
-    def create_section_title(self, parent, text, row):
-        label = tk.Label(
-            parent,
-            text=text,
-            font=("Arial", 12, "bold"),
-            bg="#f5f5f5"
-        )
-        label.grid(row=row, column=0, columnspan=2, pady=(10, 3), sticky="w")
-
     def create_input(self, parent, label_text, row, default=""):
         tk.Label(parent, text=label_text, bg="#f5f5f5").grid(
-            row=row, column=0, padx=5, pady=2, sticky="e"
+            row=row, column=0, padx=8, pady=5, sticky="e"
         )
 
-        entry = tk.Entry(parent, width=32)
-        entry.grid(row=row, column=1, padx=5, pady=2)
+        entry = tk.Entry(parent, width=35)
+        entry.grid(row=row, column=1, padx=8, pady=5)
 
         if default:
             entry.insert(0, default)
 
         self.entries[label_text] = entry
+
+    def select_portrait(self):
+        file_path = filedialog.askopenfilename(
+            title="Select NPC Portrait",
+            filetypes=[
+                ("Image Files", "*.png *.jpg *.jpeg *.gif"),
+                ("All Files", "*.*")
+            ]
+        )
+
+        if file_path:
+            self.entries["Portrait"].delete(0, tk.END)
+            self.entries["Portrait"].insert(0, file_path)
 
     def get_form_data(self):
         return {
@@ -225,13 +268,35 @@ class TRPGApp:
                 "HP": self.entries["HP"].get(),
                 "MP": self.entries["MP"].get(),
                 "SAN": self.entries["SAN"].get(),
-                "Luck": self.entries["Luck"].get()
+                "Luck": self.entries["Luck"].get(),
+                "Move": self.entries["Move"].get(),
+                "Build": self.entries["Build"].get(),
+                "Damage Bonus": self.entries["Damage Bonus"].get()
             },
-            "details": {
-                "skills": self.entries["Skills"].get(),
-                "weapons": self.entries["Weapons"].get(),
-                "background": self.entries["Background"].get(),
-                "note": self.entries["Note"].get()
+            "combat": {
+                "Weapons": self.entries["Weapons"].get(),
+                "Dodge": self.entries["Dodge"].get(),
+                "Fighting": self.entries["Fighting"].get()
+            },
+            "skills": {
+                "Spot Hidden": self.entries["Spot Hidden"].get(),
+                "Listen": self.entries["Listen"].get(),
+                "Psychology": self.entries["Psychology"].get(),
+                "Library Use": self.entries["Library Use"].get(),
+                "Stealth": self.entries["Stealth"].get(),
+                "Persuade": self.entries["Persuade"].get(),
+                "Fast Talk": self.entries["Fast Talk"].get(),
+                "Intimidate": self.entries["Intimidate"].get(),
+                "Medicine": self.entries["Medicine"].get(),
+                "Occult": self.entries["Occult"].get()
+            },
+            "background": {
+                "Backstory": self.entries["Backstory"].get(),
+                "Ideology": self.entries["Ideology"].get(),
+                "Significant Person": self.entries["Significant Person"].get(),
+                "Treasured Possession": self.entries["Treasured Possession"].get(),
+                "Trait": self.entries["Trait"].get(),
+                "Note": self.entries["Note"].get()
             }
         }
 
@@ -239,48 +304,36 @@ class TRPGApp:
         for entry in self.entries.values():
             entry.delete(0, tk.END)
 
-        for key in ["STR", "CON", "SIZ", "DEX", "APP", "INT", "POW", "EDU", "HP", "MP", "SAN", "Luck"]:
+        for key in ["STR", "CON", "SIZ", "DEX", "APP", "INT", "POW", "EDU"]:
             self.entries[key].insert(0, "50")
 
     def fill_form(self, npc):
         self.clear_form()
 
-        basic = npc.get("basic_info", {})
-        attributes = npc.get("attributes", {})
-        status = npc.get("status", {})
-        details = npc.get("details", {})
-
-        values = {
-            "Name": basic.get("name", ""),
-            "Age": basic.get("age", ""),
-            "Gender": basic.get("gender", ""),
-            "Occupation": basic.get("occupation", ""),
-            "Role": basic.get("role", ""),
-            "Portrait": basic.get("portrait", ""),
-
-            "STR": attributes.get("STR", "50"),
-            "CON": attributes.get("CON", "50"),
-            "SIZ": attributes.get("SIZ", "50"),
-            "DEX": attributes.get("DEX", "50"),
-            "APP": attributes.get("APP", "50"),
-            "INT": attributes.get("INT", "50"),
-            "POW": attributes.get("POW", "50"),
-            "EDU": attributes.get("EDU", "50"),
-
-            "HP": status.get("HP", "50"),
-            "MP": status.get("MP", "50"),
-            "SAN": status.get("SAN", "50"),
-            "Luck": status.get("Luck", "50"),
-
-            "Skills": details.get("skills", ""),
-            "Weapons": details.get("weapons", ""),
-            "Background": details.get("background", ""),
-            "Note": details.get("note", "")
+        sections = {
+            **npc.get("basic_info", {}),
+            **npc.get("attributes", {}),
+            **npc.get("status", {}),
+            **npc.get("combat", {}),
+            **npc.get("skills", {}),
+            **npc.get("background", {})
         }
 
-        for key, value in values.items():
-            self.entries[key].delete(0, tk.END)
-            self.entries[key].insert(0, value)
+        key_map = {
+            "name": "Name",
+            "age": "Age",
+            "gender": "Gender",
+            "occupation": "Occupation",
+            "role": "Role",
+            "portrait": "Portrait"
+        }
+
+        for key, value in sections.items():
+            field_name = key_map.get(key, key)
+
+            if field_name in self.entries:
+                self.entries[field_name].delete(0, tk.END)
+                self.entries[field_name].insert(0, value)
 
     def handle_save_npc(self):
         data = self.get_form_data()
@@ -369,60 +422,50 @@ class TRPGApp:
 
         npc = npcs[self.selected_npc_index]
 
+        window = Toplevel(self.root)
+        window.title("NPC Detail")
+        window.geometry("600x700")
+
+        text_box = tk.Text(window, wrap="word", font=("Arial", 11))
+        text_box.pack(fill="both", expand=True, padx=15, pady=15)
+
+        detail_text = self.format_npc_detail(npc)
+        text_box.insert("1.0", detail_text)
+        text_box.config(state="disabled")
+
+    def format_npc_detail(self, npc):
         basic = npc.get("basic_info", {})
         attributes = npc.get("attributes", {})
         status = npc.get("status", {})
-        details = npc.get("details", {})
+        combat = npc.get("combat", {})
+        skills = npc.get("skills", {})
+        background = npc.get("background", {})
 
-        window = Toplevel(self.root)
-        window.title(f"NPC Detail - {basic.get('name', '')}")
-        window.geometry("500x600")
+        text = "=== Basic Information ===\n"
+        for key, value in basic.items():
+            text += f"{key}: {value}\n"
 
-        detail_text = f"""
-Name: {basic.get('name', '')}
-Age: {basic.get('age', '')}
-Gender: {basic.get('gender', '')}
-Occupation: {basic.get('occupation', '')}
-Role: {basic.get('role', '')}
-Portrait: {basic.get('portrait', '')}
+        text += "\n=== Attributes ===\n"
+        for key, value in attributes.items():
+            text += f"{key}: {value}\n"
 
-Attributes
-STR: {attributes.get('STR', '')}
-CON: {attributes.get('CON', '')}
-SIZ: {attributes.get('SIZ', '')}
-DEX: {attributes.get('DEX', '')}
-APP: {attributes.get('APP', '')}
-INT: {attributes.get('INT', '')}
-POW: {attributes.get('POW', '')}
-EDU: {attributes.get('EDU', '')}
+        text += "\n=== Status ===\n"
+        for key, value in status.items():
+            text += f"{key}: {value}\n"
 
-Status
-HP: {status.get('HP', '')}
-MP: {status.get('MP', '')}
-SAN: {status.get('SAN', '')}
-Luck: {status.get('Luck', '')}
+        text += "\n=== Combat ===\n"
+        for key, value in combat.items():
+            text += f"{key}: {value}\n"
 
-Skills:
-{details.get('skills', '')}
+        text += "\n=== Skills ===\n"
+        for key, value in skills.items():
+            text += f"{key}: {value}\n"
 
-Weapons:
-{details.get('weapons', '')}
+        text += "\n=== Background ===\n"
+        for key, value in background.items():
+            text += f"{key}: {value}\n"
 
-Background:
-{details.get('background', '')}
-
-Note:
-{details.get('note', '')}
-"""
-
-        tk.Label(
-            window,
-            text=detail_text,
-            justify="left",
-            font=("Arial", 11),
-            padx=20,
-            pady=20
-        ).pack(anchor="w")
+        return text
 
     def show_placeholder_page(self):
         self.clear_content()
