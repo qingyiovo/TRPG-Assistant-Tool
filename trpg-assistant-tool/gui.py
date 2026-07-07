@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, Toplevel, ttk, filedialog
 
-from dice import roll_dice
+from dice import roll_dice, roll_coc_skill_check
 from npc import create_npc, get_all_npcs, update_npc, delete_npc
 
 
@@ -69,37 +69,111 @@ class TRPGApp:
         title.pack(pady=15)
 
     def show_dice_page(self):
-        self.clear_content()
-        self.create_page_title("CoC Dice Roller")
+    self.clear_content()
+    self.create_page_title("COC7 Dice System")
 
-        frame = tk.Frame(self.content, bg="#f5f5f5")
-        frame.pack(pady=20)
+    main_frame = tk.Frame(self.content, bg="#f5f5f5")
+    main_frame.pack(pady=20)
 
-        tk.Label(frame, text="Dice Format:", bg="#f5f5f5").grid(row=0, column=0, padx=10)
+    normal_frame = tk.LabelFrame(
+        main_frame,
+        text="Normal Dice Roller",
+        font=("Arial", 12, "bold"),
+        bg="#f5f5f5",
+        padx=20,
+        pady=15
+    )
+    normal_frame.pack(pady=15, fill="x")
 
-        self.dice_entry = tk.Entry(frame, width=30)
-        self.dice_entry.grid(row=0, column=1, padx=10)
-        self.dice_entry.insert(0, "1d100")
+    tk.Label(
+        normal_frame,
+        text="Dice Format:",
+        bg="#f5f5f5"
+    ).grid(row=0, column=0, padx=10, pady=10)
 
-        tk.Button(frame, text="Roll Dice", command=self.handle_roll_dice).grid(
-            row=1, column=0, columnspan=2, pady=15
+    self.dice_entry = tk.Entry(normal_frame, width=30)
+    self.dice_entry.grid(row=0, column=1, padx=10, pady=10)
+    self.dice_entry.insert(0, "1d100")
+
+    tk.Button(
+        normal_frame,
+        text="Roll Dice",
+        command=self.handle_roll_dice
+    ).grid(row=1, column=0, columnspan=2, pady=10)
+
+    self.dice_result = tk.Label(
+        normal_frame,
+        text="Result will appear here.",
+        font=("Arial", 12),
+        bg="#f5f5f5"
+    )
+    self.dice_result.grid(row=2, column=0, columnspan=2, pady=10)
+
+    skill_frame = tk.LabelFrame(
+        main_frame,
+        text="COC7 Skill Check",
+        font=("Arial", 12, "bold"),
+        bg="#f5f5f5",
+        padx=20,
+        pady=15
+    )
+    skill_frame.pack(pady=15, fill="x")
+
+    tk.Label(
+        skill_frame,
+        text="Skill Value:",
+        bg="#f5f5f5"
+    ).grid(row=0, column=0, padx=10, pady=10)
+
+    self.skill_entry = tk.Entry(skill_frame, width=30)
+    self.skill_entry.grid(row=0, column=1, padx=10, pady=10)
+    self.skill_entry.insert(0, "60")
+
+    tk.Button(
+        skill_frame,
+        text="Roll Skill Check",
+        command=self.handle_skill_check
+    ).grid(row=1, column=0, columnspan=2, pady=10)
+
+    self.skill_result = tk.Label(
+        skill_frame,
+        text="Skill check result will appear here.",
+        font=("Arial", 12),
+        bg="#f5f5f5",
+        justify="left"
+    )
+    self.skill_result.grid(row=2, column=0, columnspan=2, pady=10)
+   def handle_roll_dice(self):
+    try:
+        dice_text = self.dice_entry.get()
+        results, total = roll_dice(dice_text)
+
+        self.dice_result.config(
+            text=f"Dice: {dice_text}\nResults: {results}\nTotal: {total}"
         )
 
-        self.dice_result = tk.Label(
-            self.content,
-            text="Result will appear here.",
-            font=("Arial", 14),
-            bg="#f5f5f5"
+    except:
+        messagebox.showerror(
+            "Error",
+            "Please enter dice format like 1d100, d100, 2d6, or 3d10."
         )
-        self.dice_result.pack(pady=20)
-
-    def handle_roll_dice(self):
+    def handle_skill_check(self):
         try:
-            results, total = roll_dice(self.dice_entry.get())
-            self.dice_result.config(text=f"Results: {results}\nTotal: {total}")
-        except:
-            messagebox.showerror("Error", "Please enter dice format like 1d100 or 2d6.")
+            skill_value = int(self.skill_entry.get())
 
+            roll_result, success_level = roll_coc_skill_check(skill_value)
+            self.skill_result.config(
+            text=(
+                f"Skill Value: {skill_value}\n"
+                f"Roll: {roll_result}\n"
+                f"Result: {success_level}"
+            )
+        )
+            except:
+                messagebox.showerror(
+                    "Error",
+                    "Please enter a valid skill value between 1 and 100."
+        )
     def show_npc_page(self):
         self.clear_content()
         self.selected_npc_index = None
