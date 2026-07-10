@@ -3,7 +3,7 @@ from tkinter import messagebox, Toplevel, ttk, filedialog
 
 from dice import roll_dice, roll_coc_skill_check, roll_coc_with_bonus_or_penalty, roll_san_check
 from npc import create_npc, get_all_npcs, update_npc, delete_npc
-
+from clues import create_clue, get_all_clues, update_clue, delete_clue, search_clues
 
 class TRPGApp:
     def __init__(self):
