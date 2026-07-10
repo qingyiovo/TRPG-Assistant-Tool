@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, Toplevel, ttk, filedialog
 
-from dice import roll_dice, roll_coc_skill_check
+from dice import roll_dice, roll_coc_skill_check, roll_coc_with_bonus_or_penalty, roll_san_check
 from npc import create_npc, get_all_npcs, update_npc, delete_npc
 
 
@@ -68,12 +68,12 @@ class TRPGApp:
         )
         title.pack(pady=15)
 
-    def show_dice_page(self):
+   def show_dice_page(self):
     self.clear_content()
     self.create_page_title("COC7 Dice System")
 
     main_frame = tk.Frame(self.content, bg="#f5f5f5")
-    main_frame.pack(pady=20)
+    main_frame.pack(pady=15)
 
     normal_frame = tk.LabelFrame(
         main_frame,
@@ -83,23 +83,21 @@ class TRPGApp:
         padx=20,
         pady=15
     )
-    normal_frame.pack(pady=15, fill="x")
+    normal_frame.pack(pady=10, fill="x")
 
-    tk.Label(
-        normal_frame,
-        text="Dice Format:",
-        bg="#f5f5f5"
-    ).grid(row=0, column=0, padx=10, pady=10)
+    tk.Label(normal_frame, text="Dice Format:", bg="#f5f5f5").grid(
+        row=0, column=0, padx=10, pady=8
+    )
 
     self.dice_entry = tk.Entry(normal_frame, width=30)
-    self.dice_entry.grid(row=0, column=1, padx=10, pady=10)
+    self.dice_entry.grid(row=0, column=1, padx=10, pady=8)
     self.dice_entry.insert(0, "1d100")
 
     tk.Button(
         normal_frame,
         text="Roll Dice",
         command=self.handle_roll_dice
-    ).grid(row=1, column=0, columnspan=2, pady=10)
+    ).grid(row=1, column=0, columnspan=2, pady=8)
 
     self.dice_result = tk.Label(
         normal_frame,
@@ -107,7 +105,7 @@ class TRPGApp:
         font=("Arial", 12),
         bg="#f5f5f5"
     )
-    self.dice_result.grid(row=2, column=0, columnspan=2, pady=10)
+    self.dice_result.grid(row=2, column=0, columnspan=2, pady=8)
 
     skill_frame = tk.LabelFrame(
         main_frame,
@@ -117,23 +115,33 @@ class TRPGApp:
         padx=20,
         pady=15
     )
-    skill_frame.pack(pady=15, fill="x")
+    skill_frame.pack(pady=10, fill="x")
 
-    tk.Label(
-        skill_frame,
-        text="Skill Value:",
-        bg="#f5f5f5"
-    ).grid(row=0, column=0, padx=10, pady=10)
+    tk.Label(skill_frame, text="Skill Value:", bg="#f5f5f5").grid(
+        row=0, column=0, padx=10, pady=8
+    )
 
     self.skill_entry = tk.Entry(skill_frame, width=30)
-    self.skill_entry.grid(row=0, column=1, padx=10, pady=10)
+    self.skill_entry.grid(row=0, column=1, padx=10, pady=8)
     self.skill_entry.insert(0, "60")
 
     tk.Button(
         skill_frame,
-        text="Roll Skill Check",
+        text="Normal Check",
         command=self.handle_skill_check
-    ).grid(row=1, column=0, columnspan=2, pady=10)
+    ).grid(row=1, column=0, padx=5, pady=8)
+
+    tk.Button(
+        skill_frame,
+        text="Bonus Dice",
+        command=self.handle_bonus_check
+    ).grid(row=1, column=1, padx=5, pady=8)
+
+    tk.Button(
+        skill_frame,
+        text="Penalty Dice",
+        command=self.handle_penalty_check
+    ).grid(row=1, column=2, padx=5, pady=8)
 
     self.skill_result = tk.Label(
         skill_frame,
@@ -142,7 +150,56 @@ class TRPGApp:
         bg="#f5f5f5",
         justify="left"
     )
-    self.skill_result.grid(row=2, column=0, columnspan=2, pady=10)
+    self.skill_result.grid(row=2, column=0, columnspan=3, pady=8)
+
+    san_frame = tk.LabelFrame(
+        main_frame,
+        text="SAN Check",
+        font=("Arial", 12, "bold"),
+        bg="#f5f5f5",
+        padx=20,
+        pady=15
+    )
+    san_frame.pack(pady=10, fill="x")
+
+    tk.Label(san_frame, text="SAN Value:", bg="#f5f5f5").grid(
+        row=0, column=0, padx=10, pady=8
+    )
+
+    self.san_entry = tk.Entry(san_frame, width=20)
+    self.san_entry.grid(row=0, column=1, padx=10, pady=8)
+    self.san_entry.insert(0, "60")
+
+    tk.Label(san_frame, text="Success Loss:", bg="#f5f5f5").grid(
+        row=1, column=0, padx=10, pady=8
+    )
+
+    self.san_success_loss_entry = tk.Entry(san_frame, width=20)
+    self.san_success_loss_entry.grid(row=1, column=1, padx=10, pady=8)
+    self.san_success_loss_entry.insert(0, "0")
+
+    tk.Label(san_frame, text="Failure Loss:", bg="#f5f5f5").grid(
+        row=2, column=0, padx=10, pady=8
+    )
+
+    self.san_failure_loss_entry = tk.Entry(san_frame, width=20)
+    self.san_failure_loss_entry.grid(row=2, column=1, padx=10, pady=8)
+    self.san_failure_loss_entry.insert(0, "1d6")
+
+    tk.Button(
+        san_frame,
+        text="Roll SAN Check",
+        command=self.handle_san_check
+    ).grid(row=3, column=0, columnspan=2, pady=8)
+
+    self.san_result = tk.Label(
+        san_frame,
+        text="SAN check result will appear here.",
+        font=("Arial", 12),
+        bg="#f5f5f5",
+        justify="left"
+    )
+    self.san_result.grid(row=4, column=0, columnspan=2, pady=8)
    def handle_roll_dice(self):
     try:
         dice_text = self.dice_entry.get()
@@ -157,22 +214,105 @@ class TRPGApp:
             "Error",
             "Please enter dice format like 1d100, d100, 2d6, or 3d10."
         )
-    def handle_skill_check(self):
-        try:
-            skill_value = int(self.skill_entry.get())
 
-            roll_result, success_level = roll_coc_skill_check(skill_value)
-            self.skill_result.config(
+
+def handle_skill_check(self):
+    try:
+        skill_value = int(self.skill_entry.get())
+        result = roll_coc_with_bonus_or_penalty(skill_value, "normal")
+
+        self.skill_result.config(
+            text=self.format_coc_check_result(result)
+        )
+
+    except:
+        messagebox.showerror(
+            "Error",
+            "Please enter a valid skill value between 1 and 100."
+        )
+
+
+def handle_bonus_check(self):
+    try:
+        skill_value = int(self.skill_entry.get())
+        result = roll_coc_with_bonus_or_penalty(skill_value, "bonus")
+
+        self.skill_result.config(
+            text=self.format_coc_check_result(result)
+        )
+
+    except:
+        messagebox.showerror(
+            "Error",
+            "Please enter a valid skill value between 1 and 100."
+        )
+
+
+def handle_penalty_check(self):
+    try:
+        skill_value = int(self.skill_entry.get())
+        result = roll_coc_with_bonus_or_penalty(skill_value, "penalty")
+
+        self.skill_result.config(
+            text=self.format_coc_check_result(result)
+        )
+
+    except:
+        messagebox.showerror(
+            "Error",
+            "Please enter a valid skill value between 1 and 100."
+        )
+
+
+def format_coc_check_result(self, result):
+    mode = result["mode"]
+
+    if mode == "normal":
+        mode_text = "Normal Check"
+    elif mode == "bonus":
+        mode_text = "Bonus Dice"
+    elif mode == "penalty":
+        mode_text = "Penalty Dice"
+    else:
+        mode_text = "Unknown"
+
+    return (
+        f"Check Type: {mode_text}\n"
+        f"Skill Value: {result['skill_value']}\n"
+        f"Tens Rolls: {result['tens_rolls']}\n"
+        f"Ones Digit: {result['ones_digit']}\n"
+        f"Final Roll: {result['roll_result']}\n"
+        f"Result: {result['success_level']}"
+    )
+
+
+def handle_san_check(self):
+    try:
+        san_value = int(self.san_entry.get())
+        success_loss = self.san_success_loss_entry.get()
+        failure_loss = self.san_failure_loss_entry.get()
+
+        result = roll_san_check(
+            san_value,
+            success_loss,
+            failure_loss
+        )
+
+        self.san_result.config(
             text=(
-                f"Skill Value: {skill_value}\n"
-                f"Roll: {roll_result}\n"
-                f"Result: {success_level}"
+                f"SAN Value: {result['san_value']}\n"
+                f"Roll: {result['roll_result']}\n"
+                f"Result: {result['success_level']}\n"
+                f"Loss Rule: {result['loss_text']}\n"
+                f"Loss Detail: {result['loss_detail']}\n"
+                f"SAN Loss: {result['san_loss']}"
             )
         )
-            except:
-                messagebox.showerror(
-                    "Error",
-                    "Please enter a valid skill value between 1 and 100."
+
+    except:
+        messagebox.showerror(
+            "Error",
+            "Please enter valid SAN value and loss format, such as 0, 1, 1d3, or 1d6."
         )
     def show_npc_page(self):
         self.clear_content()
