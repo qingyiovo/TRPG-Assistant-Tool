@@ -35,7 +35,7 @@ class TRPGApp:
 
         self.create_sidebar_button("🎲 CoC Dice", self.show_dice_page)
         self.create_sidebar_button("👤 NPC Manager", self.show_npc_page)
-        self.create_sidebar_button("📖 Clues", self.show_placeholder_page)
+        self.create_sidebar_button("📖 Clues", self.show_clues_page)
         self.create_sidebar_button("🗺 Maps", self.show_placeholder_page)
         self.create_sidebar_button("📅 Timeline", self.show_placeholder_page)
         self.create_sidebar_button("🎵 Music", self.show_placeholder_page)
@@ -680,6 +680,575 @@ def handle_san_check(self):
             text += f"{key}: {value}\n"
 
         return text
+    def show_clues_page(self):
+    self.clear_content()
+    self.selected_clue_index = None
+    self.create_page_title("Clue Manager")
+
+    main_frame = tk.Frame(self.content, bg="#f5f5f5")
+    main_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+    left_frame = tk.Frame(main_frame, bg="#f5f5f5")
+    left_frame.pack(side="left", fill="both", expand=True, padx=10)
+
+    right_frame = tk.Frame(main_frame, bg="#f5f5f5")
+    right_frame.pack(side="right", fill="both", expand=True, padx=10)
+
+    self.clue_entries = {}
+
+    self.create_clue_input(left_frame, "Title", 0)
+    self.create_clue_input(left_frame, "Location", 1)
+    self.create_clue_input(left_frame, "Related NPC", 2)
+    self.create_clue_input(left_frame, "Status", 3, default="Hidden")
+    self.create_clue_input(left_frame, "Tags", 4)
+
+    tk.Label(
+        left_frame,
+        text="Description",
+        bg="#f5f5f5"
+    ).grid(row=5, column=0, padx=8, pady=5, sticky="ne")
+
+    self.clue_description_text = tk.Text(left_frame, width=35, height=8)
+    self.clue_description_text.grid(row=5, column=1, padx=8, pady=5)
+
+    button_frame = tk.Frame(left_frame, bg="#f5f5f5")
+    button_frame.grid(row=6, column=0, columnspan=2, pady=10)
+
+    tk.Button(
+        button_frame,
+        text="Save New Clue",
+        command=self.handle_save_clue
+    ).grid(row=0, column=0, padx=5)
+
+    tk.Button(
+        button_frame,
+        text="Update Selected",
+        command=self.handle_update_clue
+    ).grid(row=0, column=1, padx=5)
+
+    tk.Button(
+        button_frame,
+        text="Clear Form",
+        command=self.clear_clue_form
+    ).grid(row=0, column=2, padx=5)
+
+    search_frame = tk.Frame(right_frame, bg="#f5f5f5")
+    search_frame.pack(pady=5)
+
+    self.clue_search_entry = tk.Entry(search_frame, width=30)
+    self.clue_search_entry.grid(row=0, column=0, padx=5)
+
+    tk.Button(
+        search_frame,
+        text="Search",
+        command=self.handle_search_clue
+    ).grid(row=0, column=1, padx=5)
+
+    tk.Button(
+        search_frame,
+        text="Show All",
+        command=self.refresh_clue_list
+    ).grid(row=0, column=2, padx=5)
+
+    tk.Label(
+        right_frame,
+        text="Clue List",
+        font=("Arial", 14, "bold"),
+        bg="#f5f5f5"
+    ).pack(pady=5)
+
+    self.clue_listbox = tk.Listbox(right_frame, height=22)
+    self.clue_listbox.pack(side="left", fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(right_frame)
+    scrollbar.pack(side="right", fill="y")
+
+    self.clue_listbox.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=self.clue_listbox.yview)
+
+    self.clue_listbox.bind("<<ListboxSelect>>", self.handle_select_clue)
+    self.clue_listbox.bind("<Double-Button-1>", self.open_clue_detail_window)
+
+    action_frame = tk.Frame(self.content, bg="#f5f5f5")
+    action_frame.pack(pady=10)
+
+    tk.Button(
+        action_frame,
+        text="View Detail",
+        command=self.open_clue_detail_window
+    ).grid(row=0, column=0, padx=10)
+
+    tk.Button(
+        action_frame,
+        text="Delete Selected Clue",
+        command=self.handle_delete_clue
+    ).grid(row=0, column=1, padx=10)
+
+    self.refresh_clue_list()
+
+
+def create_clue_input(self, parent, label_text, row, default=""):
+    tk.Label(
+        parent,
+        text=label_text,
+        bg="#f5f5f5"
+    ).grid(row=row, column=0, padx=8, pady=5, sticky="e")
+
+    entry = tk.Entry(parent, width=35)
+    entry.grid(row=row, column=1, padx=8, pady=5)
+
+    if default:
+        entry.insert(0, default)
+
+    self.clue_entries[label_text] = entry
+
+
+def get_clue_form_data(self):
+    return {
+        "title": self.clue_entries["Title"].get(),
+        "location": self.clue_entries["Location"].get(),
+        "related_npc": self.clue_entries["Related NPC"].get(),
+        "status": self.clue_entries["Status"].get(),
+        "tags": self.clue_entries["Tags"].get(),
+        "description": self.clue_description_text.get("1.0", tk.END).strip()
+    }
+
+
+def clear_clue_form(self):
+    for entry in self.clue_entries.values():
+        entry.delete(0, tk.END)
+
+    self.clue_entries["Status"].insert(0, "Hidden")
+    self.clue_description_text.delete("1.0", tk.END)
+    self.selected_clue_index = None
+
+
+def fill_clue_form(self, clue):
+    self.clear_clue_form()
+
+    self.clue_entries["Title"].insert(0, clue.get("title", ""))
+    self.clue_entries["Location"].insert(0, clue.get("location", ""))
+    self.clue_entries["Related NPC"].insert(0, clue.get("related_npc", ""))
+    self.clue_entries["Status"].insert(0, clue.get("status", ""))
+    self.clue_entries["Tags"].insert(0, clue.get("tags", ""))
+
+    self.clue_description_text.insert(
+        "1.0",
+        clue.get("description", "")
+    )
+
+
+def handle_save_clue(self):
+    data = self.get_clue_form_data()
+
+    if not data["title"]:
+        messagebox.showerror("Error", "Clue title cannot be empty.")
+        return
+
+    create_clue(data)
+    messagebox.showinfo("Success", "Clue saved successfully.")
+    self.clear_clue_form()
+    self.refresh_clue_list()
+
+
+def handle_update_clue(self):
+    if self.selected_clue_index is None:
+        messagebox.showerror("Error", "Please select a clue first.")
+        return
+
+    data = self.get_clue_form_data()
+    success = update_clue(self.selected_clue_index, data)
+
+    if success:
+        messagebox.showinfo("Success", "Clue updated successfully.")
+        self.refresh_clue_list()
+    else:
+        messagebox.showerror("Error", "Update failed.")
+
+
+def refresh_clue_list(self):
+    self.clue_listbox.delete(0, tk.END)
+
+    clues = get_all_clues()
+
+    if not clues:
+        self.clue_listbox.insert(tk.END, "No clue data.")
+        return
+
+    for index, clue in enumerate(clues, start=1):
+        title = clue.get("title", "")
+        location = clue.get("location", "")
+        status = clue.get("status", "")
+
+        self.clue_listbox.insert(
+            tk.END,
+            f"{index}. {title} | {location} | {status}"
+        )
+
+
+def handle_select_clue(self, event=None):
+    selected = self.clue_listbox.curselection()
+
+    if not selected:
+        return
+
+    index = selected[0]
+    clues = get_all_clues()
+
+    if index >= len(clues):
+        return
+
+    self.selected_clue_index = index
+    self.fill_clue_form(clues[index])
+
+
+def handle_search_clue(self):
+    keyword = self.clue_search_entry.get()
+
+    self.clue_listbox.delete(0, tk.END)
+
+    results = search_clues(keyword)
+
+    if not results:
+        self.clue_listbox.insert(tk.END, "No matching clue found.")
+        return
+
+    self.search_clue_results = []
+
+    for real_index, clue in results:
+        self.search_clue_results.append(real_index)
+
+        title = clue.get("title", "")
+        location = clue.get("location", "")
+        status = clue.get("status", "")
+
+        self.clue_listbox.insert(
+            tk.END,
+            f"{real_index + 1}. {title} | {location} | {status}"
+        )
+
+
+def handle_delete_clue(self):
+    if self.selected_clue_index is None:
+        messagebox.showerror("Error", "Please select a clue first.")
+        return
+
+    confirm = messagebox.askyesno(
+        "Confirm Delete",
+        "Are you sure you want to delete this clue?"
+    )
+
+    if confirm:
+        success = delete_clue(self.selected_clue_index)
+
+        if success:
+            messagebox.showinfo("Success", "Clue deleted successfully.")
+            self.selected_clue_index = None
+            self.clear_clue_form()
+            self.refresh_clue_list()
+        else:
+            messagebox.showerror("Error", "Delete failed.")
+
+
+    def show_clues_page(self):
+    self.clear_content()
+    self.selected_clue_index = None
+    self.create_page_title("Clue Manager")
+
+    main_frame = tk.Frame(self.content, bg="#f5f5f5")
+    main_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+    left_frame = tk.Frame(main_frame, bg="#f5f5f5")
+    left_frame.pack(side="left", fill="both", expand=True, padx=10)
+
+    right_frame = tk.Frame(main_frame, bg="#f5f5f5")
+    right_frame.pack(side="right", fill="both", expand=True, padx=10)
+
+    self.clue_entries = {}
+
+    self.create_clue_input(left_frame, "Title", 0)
+    self.create_clue_input(left_frame, "Location", 1)
+    self.create_clue_input(left_frame, "Related NPC", 2)
+    self.create_clue_input(left_frame, "Status", 3, default="Hidden")
+    self.create_clue_input(left_frame, "Tags", 4)
+
+    tk.Label(
+        left_frame,
+        text="Description",
+        bg="#f5f5f5"
+    ).grid(row=5, column=0, padx=8, pady=5, sticky="ne")
+
+    self.clue_description_text = tk.Text(left_frame, width=35, height=8)
+    self.clue_description_text.grid(row=5, column=1, padx=8, pady=5)
+
+    button_frame = tk.Frame(left_frame, bg="#f5f5f5")
+    button_frame.grid(row=6, column=0, columnspan=2, pady=10)
+
+    tk.Button(
+        button_frame,
+        text="Save New Clue",
+        command=self.handle_save_clue
+    ).grid(row=0, column=0, padx=5)
+
+    tk.Button(
+        button_frame,
+        text="Update Selected",
+        command=self.handle_update_clue
+    ).grid(row=0, column=1, padx=5)
+
+    tk.Button(
+        button_frame,
+        text="Clear Form",
+        command=self.clear_clue_form
+    ).grid(row=0, column=2, padx=5)
+
+    search_frame = tk.Frame(right_frame, bg="#f5f5f5")
+    search_frame.pack(pady=5)
+
+    self.clue_search_entry = tk.Entry(search_frame, width=30)
+    self.clue_search_entry.grid(row=0, column=0, padx=5)
+
+    tk.Button(
+        search_frame,
+        text="Search",
+        command=self.handle_search_clue
+    ).grid(row=0, column=1, padx=5)
+
+    tk.Button(
+        search_frame,
+        text="Show All",
+        command=self.refresh_clue_list
+    ).grid(row=0, column=2, padx=5)
+
+    tk.Label(
+        right_frame,
+        text="Clue List",
+        font=("Arial", 14, "bold"),
+        bg="#f5f5f5"
+    ).pack(pady=5)
+
+    self.clue_listbox = tk.Listbox(right_frame, height=22)
+    self.clue_listbox.pack(side="left", fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(right_frame)
+    scrollbar.pack(side="right", fill="y")
+
+    self.clue_listbox.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=self.clue_listbox.yview)
+
+    self.clue_listbox.bind("<<ListboxSelect>>", self.handle_select_clue)
+    self.clue_listbox.bind("<Double-Button-1>", self.open_clue_detail_window)
+
+    action_frame = tk.Frame(self.content, bg="#f5f5f5")
+    action_frame.pack(pady=10)
+
+    tk.Button(
+        action_frame,
+        text="View Detail",
+        command=self.open_clue_detail_window
+    ).grid(row=0, column=0, padx=10)
+
+    tk.Button(
+        action_frame,
+        text="Delete Selected Clue",
+        command=self.handle_delete_clue
+    ).grid(row=0, column=1, padx=10)
+
+    self.refresh_clue_list()
+
+
+def create_clue_input(self, parent, label_text, row, default=""):
+    tk.Label(
+        parent,
+        text=label_text,
+        bg="#f5f5f5"
+    ).grid(row=row, column=0, padx=8, pady=5, sticky="e")
+
+    entry = tk.Entry(parent, width=35)
+    entry.grid(row=row, column=1, padx=8, pady=5)
+
+    if default:
+        entry.insert(0, default)
+
+    self.clue_entries[label_text] = entry
+
+
+def get_clue_form_data(self):
+    return {
+        "title": self.clue_entries["Title"].get(),
+        "location": self.clue_entries["Location"].get(),
+        "related_npc": self.clue_entries["Related NPC"].get(),
+        "status": self.clue_entries["Status"].get(),
+        "tags": self.clue_entries["Tags"].get(),
+        "description": self.clue_description_text.get("1.0", tk.END).strip()
+    }
+
+
+def clear_clue_form(self):
+    for entry in self.clue_entries.values():
+        entry.delete(0, tk.END)
+
+    self.clue_entries["Status"].insert(0, "Hidden")
+    self.clue_description_text.delete("1.0", tk.END)
+    self.selected_clue_index = None
+
+
+def fill_clue_form(self, clue):
+    self.clear_clue_form()
+
+    self.clue_entries["Title"].insert(0, clue.get("title", ""))
+    self.clue_entries["Location"].insert(0, clue.get("location", ""))
+    self.clue_entries["Related NPC"].insert(0, clue.get("related_npc", ""))
+    self.clue_entries["Status"].insert(0, clue.get("status", ""))
+    self.clue_entries["Tags"].insert(0, clue.get("tags", ""))
+
+    self.clue_description_text.insert(
+        "1.0",
+        clue.get("description", "")
+    )
+
+
+def handle_save_clue(self):
+    data = self.get_clue_form_data()
+
+    if not data["title"]:
+        messagebox.showerror("Error", "Clue title cannot be empty.")
+        return
+
+    create_clue(data)
+    messagebox.showinfo("Success", "Clue saved successfully.")
+    self.clear_clue_form()
+    self.refresh_clue_list()
+
+
+def handle_update_clue(self):
+    if self.selected_clue_index is None:
+        messagebox.showerror("Error", "Please select a clue first.")
+        return
+
+    data = self.get_clue_form_data()
+    success = update_clue(self.selected_clue_index, data)
+
+    if success:
+        messagebox.showinfo("Success", "Clue updated successfully.")
+        self.refresh_clue_list()
+    else:
+        messagebox.showerror("Error", "Update failed.")
+
+
+def refresh_clue_list(self):
+    self.clue_listbox.delete(0, tk.END)
+
+    clues = get_all_clues()
+
+    if not clues:
+        self.clue_listbox.insert(tk.END, "No clue data.")
+        return
+
+    for index, clue in enumerate(clues, start=1):
+        title = clue.get("title", "")
+        location = clue.get("location", "")
+        status = clue.get("status", "")
+
+        self.clue_listbox.insert(
+            tk.END,
+            f"{index}. {title} | {location} | {status}"
+        )
+
+
+def handle_select_clue(self, event=None):
+    selected = self.clue_listbox.curselection()
+
+    if not selected:
+        return
+
+    index = selected[0]
+    clues = get_all_clues()
+
+    if index >= len(clues):
+        return
+
+    self.selected_clue_index = index
+    self.fill_clue_form(clues[index])
+
+
+def handle_search_clue(self):
+    keyword = self.clue_search_entry.get()
+
+    self.clue_listbox.delete(0, tk.END)
+
+    results = search_clues(keyword)
+
+    if not results:
+        self.clue_listbox.insert(tk.END, "No matching clue found.")
+        return
+
+    self.search_clue_results = []
+
+    for real_index, clue in results:
+        self.search_clue_results.append(real_index)
+
+        title = clue.get("title", "")
+        location = clue.get("location", "")
+        status = clue.get("status", "")
+
+        self.clue_listbox.insert(
+            tk.END,
+            f"{real_index + 1}. {title} | {location} | {status}"
+        )
+
+
+def handle_delete_clue(self):
+    if self.selected_clue_index is None:
+        messagebox.showerror("Error", "Please select a clue first.")
+        return
+
+    confirm = messagebox.askyesno(
+        "Confirm Delete",
+        "Are you sure you want to delete this clue?"
+    )
+
+    if confirm:
+        success = delete_clue(self.selected_clue_index)
+
+        if success:
+            messagebox.showinfo("Success", "Clue deleted successfully.")
+            self.selected_clue_index = None
+            self.clear_clue_form()
+            self.refresh_clue_list()
+        else:
+            messagebox.showerror("Error", "Delete failed.")
+
+
+def open_clue_detail_window(self, event=None):
+    if self.selected_clue_index is None:
+        messagebox.showerror("Error", "Please select a clue first.")
+        return
+
+    clues = get_all_clues()
+
+    if self.selected_clue_index >= len(clues):
+        return
+
+    clue = clues[self.selected_clue_index]
+
+    window = Toplevel(self.root)
+    window.title(f"Clue Detail - {clue.get('title', '')}")
+    window.geometry("500x500")
+
+    detail_text = (
+        f"Title: {clue.get('title', '')}\n"
+        f"Location: {clue.get('location', '')}\n"
+        f"Related NPC: {clue.get('related_npc', '')}\n"
+        f"Status: {clue.get('status', '')}\n"
+        f"Tags: {clue.get('tags', '')}\n\n"
+        f"Description:\n{clue.get('description', '')}"
+    )
+
+    text_box = tk.Text(window, wrap="word", font=("Arial", 11))
+    text_box.pack(fill="both", expand=True, padx=15, pady=15)
+    text_box.insert("1.0", detail_text)
+    text_box.config(state="disabled")
 
     def show_placeholder_page(self):
         self.clear_content()
