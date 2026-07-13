@@ -2,8 +2,10 @@ import json
 import os
 
 DATA_DIR = "data"
+
 NPC_FILE = os.path.join(DATA_DIR, "npc_data.json")
 CLUE_FILE = os.path.join(DATA_DIR, "clue_data.json")
+CAMPAIGN_FILE = os.path.join(DATA_DIR, "campaign_data.json")
 
 
 def ensure_data_folder():
@@ -42,3 +44,11 @@ def load_clues():
 
 def save_clues(clues):
     save_json(CLUE_FILE, clues)
+
+
+def load_campaigns():
+    return load_json(CAMPAIGN_FILE)
+
+
+def save_campaigns(campaigns):
+    save_json(CAMPAIGN_FILE, campaigns)
