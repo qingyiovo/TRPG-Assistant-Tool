@@ -1,4 +1,5 @@
 data/npc_data.json
 data/clue_data.json
+data/campaign_data.json
 __pycache__/
 *.pyc
